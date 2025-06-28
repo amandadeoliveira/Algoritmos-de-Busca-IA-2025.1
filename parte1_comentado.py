@@ -54,6 +54,28 @@ def custo(estado1, estado2, tipo):
             return 5
         return base
 
+# Funções heurística (H1 e H2)
+def heuristica(estado, tipo):
+    valor = 0
+
+    #Cálculo da Heuristica H1(Número de peças no lugar errado)
+    if(tipo == "H1"):
+        for s in range(9):
+            if estado[s] != GOAL[s] and estado[s] != 0:
+                valor+=1
+
+    #Cálculo da Heurística H2(Distância Manhattan)
+    if(tipo == "H2"):
+        for s in range(9):
+
+            idx1, idx2 = estado.index(s), GOAL.index(s)
+            row1, col1 = divmod(idx1, 3)
+            row2, col2 = divmod(idx2, 3)
+            valor += abs(row1 - row2) + abs(col1 - col2)
+
+    valor *= 2        
+    return valor
+
 # ------------------------------------------
 # Busca em Largura (Breadth-First Search)
 # ------------------------------------------
@@ -112,6 +134,70 @@ def busca_custo_uniforme(inicial, tipo):
     return None, float('inf'), nos_gerados, len(visitados)
 
 # ------------------------------------------
+# Busca Gulosa
+# ------------------------------------------
+def busca_gulosa(estado_inicial, tipo_custo, tipo_heuristica):
+    estado_inicial = tuple(estado_inicial)
+    visitados = set()
+    heap = [(heuristica(estado_inicial, tipo_heuristica), estado_inicial, [])]
+    nos_gerados = 1
+
+    while heap:
+        h, estado, caminho = heapq.heappop(heap)
+
+        if estado in visitados:
+            continue
+        visitados.add(estado)
+
+        if estado == tuple(GOAL):
+            caminho_completo = caminho + [estado]
+            custo_total = 0
+            for i in range(len(caminho_completo) - 1):
+                custo_total += custo(caminho_completo[i], caminho_completo[i+1], tipo_custo)
+            return caminho_completo, custo_total, nos_gerados, len(visitados)
+
+        for s in sucessores(list(estado)):
+            s_tuple = tuple(s)
+            if s_tuple not in visitados:
+                h_val = heuristica(s_tuple, tipo_heuristica)
+                heapq.heappush(heap, (h_val, s_tuple, caminho + [estado]))
+                nos_gerados += 1
+
+    return None, float('inf'), nos_gerados, len(visitados)
+
+
+# ------------------------------------------
+# Busca A*
+# ------------------------------------------
+def busca_a_star(estado_inicial, tipo_custo, tipo_heuristica):
+    estado_inicial = tuple(estado_inicial)
+    visitados = set()
+    heap = [(heuristica(estado_inicial, tipo_heuristica), 0, estado_inicial, [])]  # (f, g, estado, caminho)
+    nos_gerados = 1
+
+    while heap:
+        f, g, estado, caminho = heapq.heappop(heap)
+
+        if estado in visitados:
+            continue
+        visitados.add(estado)
+
+        if estado == GOAL:
+            return caminho + [estado], g, nos_gerados, len(visitados)
+        
+        for s in sucessores(list(estado)):
+            s_tuple = tuple(s)
+            if s_tuple not in visitados:
+                custo_transicao = custo(estado, s_tuple, tipo_custo)
+                novo_g = g + custo_transicao
+                h = heuristica(s_tuple, tipo_heuristica)
+                heapq.heappush(heap, (novo_g + h, novo_g, s_tuple, caminho + [estado]))
+                nos_gerados += 1
+
+    return None, float('inf'), nos_gerados, len(visitados)
+
+
+# ------------------------------------------
 # Execução da Parte 1 (30 execuções com C1-C4)
 # ------------------------------------------
 for i in range(30):
@@ -139,3 +225,47 @@ for i in range(30):
 
 # ------------------------------------------
 
+
+# ------------------------------------------
+# Execução da Parte 2 (30 execuções Custo Uniforme x A*)
+
+for i in range(30):
+        inicial = gerar_estado_inicial()
+        # Busca de Custo Uniforme
+        for func in ['C1', 'C2', 'C3', 'C4']:
+            print(f"\n[Busca de Custo Uniforme] - Função de custo: {func}")
+            caminho, custo_final, nos_gerados, nos_visitados = busca_custo_uniforme(inicial, func)
+            print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
+       
+        #Busca A*
+        for func in ['C1', 'C2', 'C3', 'C4']:
+            for h in ['H1', 'H2']:
+                print(f"\n[Busca A*] - Heurística: {h} | Função de custo: {func}")
+                caminho, custo_final, nos_gerados, nos_visitados = busca_a_star(inicial, func, h)
+                print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
+
+# ------------------------------------------
+
+# ------------------------------------------
+# Execução da Parte 3 (30 execuções Busca Gulosa x A*)
+for i in range(30):
+    inicial = gerar_estado_inicial()
+    for h in ['H1', 'H2']:
+        for func in ['C1','C2','C3','C4']:
+            print(f"\n[Busca gulosa] - Função de custo: {func} | Heurística: {h}")
+            caminho, custo_final, nos_gerados, nos_visitados = busca_gulosa(inicial, func, h)
+            print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
+
+    for func in ['C1', 'C2', 'C3', 'C4']:
+        for h in ['H1', 'H2']:
+            print(f"\n[Busca A*] - Função de custo: {func} | Heurística: {h}")
+            caminho, custo_final, nos_gerados, nos_visitados = busca_a_star(inicial, func, h)
+            print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
+
+# ------------------------------------------
+
+# ------------------------------------------
+# Execução da Parte 4 (30 execuções Largura x Profundidade com randomização da vizinhança)
+
+
+# ------------------------------------------
