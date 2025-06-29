@@ -3,10 +3,6 @@ import copy
 from collections import deque
 import heapq
 
-# ------------------------------------------
-# Olá! Sou a Amanda e nessa primeira parte do trabalho meu código implementa Busca em Largura, Busca em Profundidade e Custo Uniforme.
-# ------------------------------------------
-
 # Estado objetivo padrão do 8-Puzzle
 GOAL = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
@@ -76,9 +72,7 @@ def heuristica(estado, tipo):
     valor *= 2        
     return valor
 
-# ------------------------------------------
 # Busca em Largura (Breadth-First Search)
-# ------------------------------------------
 def busca_largura(inicial):
     visitados = set()
     fila = deque([(inicial, [])])
@@ -94,9 +88,7 @@ def busca_largura(inicial):
                 nos_gerados += 1
     return None, nos_gerados, len(visitados)
 
-# ------------------------------------------
 # Busca em Profundidade (Depth-First Search)
-# ------------------------------------------
 def busca_profundidade(inicial):
     visitados = set()
     pilha = [(inicial, [])]
@@ -112,9 +104,7 @@ def busca_profundidade(inicial):
                 nos_gerados += 1
     return None, nos_gerados, len(visitados)
 
-# ------------------------------------------
 # Busca de Custo Uniforme (Uniform Cost Search)
-# ------------------------------------------
 def busca_custo_uniforme(inicial, tipo):
     visitados = set()
     heap = [(0, inicial, [])]  # heap = fila de prioridade
@@ -133,9 +123,7 @@ def busca_custo_uniforme(inicial, tipo):
                 nos_gerados += 1
     return None, float('inf'), nos_gerados, len(visitados)
 
-# ------------------------------------------
 # Busca Gulosa
-# ------------------------------------------
 def busca_gulosa(estado_inicial, tipo_custo, tipo_heuristica):
     estado_inicial = tuple(estado_inicial)
     visitados = set()
@@ -166,9 +154,7 @@ def busca_gulosa(estado_inicial, tipo_custo, tipo_heuristica):
     return None, float('inf'), nos_gerados, len(visitados)
 
 
-# ------------------------------------------
 # Busca A*
-# ------------------------------------------
 def busca_a_star(estado_inicial, tipo_custo, tipo_heuristica):
     estado_inicial = tuple(estado_inicial)
     visitados = set()
@@ -197,9 +183,7 @@ def busca_a_star(estado_inicial, tipo_custo, tipo_heuristica):
     return None, float('inf'), nos_gerados, len(visitados)
 
 
-# ------------------------------------------
 # Execução da Parte 1 (30 execuções com C1-C4)
-# ------------------------------------------
 for i in range(30):
     inicial = gerar_estado_inicial()
     print(f"\n=== Execução {i+1} ===")
@@ -223,10 +207,6 @@ for i in range(30):
         caminho, custo_final, nos_gerados, nos_visitados = busca_custo_uniforme(inicial, func)
         print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
 
-# ------------------------------------------
-
-
-# ------------------------------------------
 # Execução da Parte 2 (30 execuções Custo Uniforme x A*)
 
 for i in range(30):
@@ -244,9 +224,6 @@ for i in range(30):
                 caminho, custo_final, nos_gerados, nos_visitados = busca_a_star(inicial, func, h)
                 print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
 
-# ------------------------------------------
-
-# ------------------------------------------
 # Execução da Parte 3 (30 execuções Busca Gulosa x A*)
 for i in range(30):
     inicial = gerar_estado_inicial()
@@ -262,10 +239,5 @@ for i in range(30):
             caminho, custo_final, nos_gerados, nos_visitados = busca_a_star(inicial, func, h)
             print(f"Caminho Final: {caminho[-1] if caminho else 'ERRO'} | Custo: {custo_final} | Nós gerados: {nos_gerados} | Nós visitados: {nos_visitados}")
 
-# ------------------------------------------
-
-# ------------------------------------------
 # Execução da Parte 4 (30 execuções Largura x Profundidade com randomização da vizinhança)
 
-
-# ------------------------------------------
